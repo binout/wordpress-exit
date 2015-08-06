@@ -1,0 +1,20 @@
+= WordPress Exit
+
+== Objective
+A tool to extract post from WordPress blog, in order to migrate to another blog.
+
+== Pre-requesites
+
+* A WordPress export in XML format
+* Java 8
+* Maven (to build project)
+
+== Command line
+[source]
+----
+java - jar wordpress-exit-{version}.jar -file <XML_EXPORT> - output <OUTPUT_DIR> amp
+----
+
+== Results
+
+A HTML file is created for each post.
