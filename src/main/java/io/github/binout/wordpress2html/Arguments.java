@@ -28,6 +28,9 @@ class Arguments {
     @Parameter(names = "-output", converter = FileConverter.class)
     File output;
 
+    @Parameter(names = "-asciidoc", description = "Convert to asciidoc")
+    String asciidoc = "false";
+
     public static class FileConverter implements IStringConverter<File> {
         @Override
         public File convert(String value) {

@@ -28,7 +28,7 @@ import java.util.function.Consumer;
 
 public class WordPressExit {
 
-    public static void exit(InputStream inputStream, File output, Consumer<String> logger) throws Exception {
+    public static void exit(InputStream inputStream, File output, boolean asciidoc, Consumer<String> logger) throws Exception {
         long begin = System.currentTimeMillis();
         logger.accept("BEGIN");
 
@@ -40,7 +40,7 @@ public class WordPressExit {
         logger.accept("Begin writing html posts...");
         posts.stream().forEach(p -> {
             try {
-                File file = new PostWriter(output, p).write();
+                File file = new PostWriter(output, p, asciidoc).write();
                 logger.accept("Write " + file.getName());
             } catch (IOException e) {
                 throw new RuntimeException(e);
@@ -53,7 +53,7 @@ public class WordPressExit {
         Arguments arguments = new Arguments();
         new JCommander(arguments, args);
 
-        exit(new FileInputStream(arguments.file), arguments.output, System.out::println);
+        exit(new FileInputStream(arguments.file), arguments.output, Boolean.parseBoolean(arguments.asciidoc), System.out::println);
     }
 
 }

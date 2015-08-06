@@ -28,15 +28,20 @@ public class PostWriter {
     private static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd");
     private final File file;
     private final Post post;
+    private boolean asciidoc;
 
-    public PostWriter(File output, Post post) {
+    public PostWriter(File output, Post post, boolean asciidoc) {
         this.post = post;
-        file = new File(output, getFilename(this.post) + ".html");
+        this.file = new File(output, getFilename(this.post) + ".html");
+        this.asciidoc = asciidoc;
     }
 
     public File write() throws IOException {
         String htmlContent = getFullHtml();
         Files.copy(new ByteArrayInputStream(htmlContent.getBytes("UTF-8")), file.toPath());
+        if (asciidoc) {
+           Runtime.getRuntime().exec("pandoc --no-wrap -f html -t asciidoc " + file.getAbsolutePath() + " > " + file.getAbsolutePath()+ "adoc");
+        }
         return file;
     }
 

@@ -19,7 +19,7 @@ public class WordPressExitTest {
         File output = testFolder.newFolder();
         InputStream inputStream = Thread.currentThread().getContextClassLoader().getResourceAsStream("javaonemorething.xml");
 
-        WordPressExit.exit(inputStream, output, System.out::println);
+        WordPressExit.exit(inputStream, output, false, System.out::println);
 
         assertThat(output.list()).hasSize(38);
     }
