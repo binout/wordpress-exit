@@ -16,10 +16,9 @@
 package io.github.binout.wordpress2html.writer;
 
 import io.github.binout.wordpress2html.Post;
+import org.apache.commons.io.IOUtils;
 
-import java.io.ByteArrayInputStream;
-import java.io.File;
-import java.io.IOException;
+import java.io.*;
 import java.nio.file.Files;
 import java.time.format.DateTimeFormatter;
 
@@ -28,21 +27,33 @@ public class PostWriter {
     private static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd");
     private final File file;
     private final Post post;
-    private boolean asciidoc;
+    private Html2AsciidocConverter html2AsciidocConverter;
 
-    public PostWriter(File output, Post post, boolean asciidoc) {
+    public PostWriter(File output, Post post, boolean asciidoc) throws IOException {
         this.post = post;
         this.file = new File(output, getFilename(this.post) + ".html");
-        this.asciidoc = asciidoc;
+        if (asciidoc) {
+            html2AsciidocConverter = new Html2AsciidocConverter();
+        }
     }
 
     public File write() throws IOException {
         String htmlContent = getFullHtml();
         Files.copy(new ByteArrayInputStream(htmlContent.getBytes("UTF-8")), file.toPath());
-        if (asciidoc) {
-           Runtime.getRuntime().exec("pandoc --no-wrap -f html -t asciidoc " + file.getAbsolutePath() + " > " + file.getAbsolutePath()+ "adoc");
+        if (html2AsciidocConverter != null) {
+            File asciidoc = html2AsciidocConverter.convert(file);
+            addHeader(asciidoc);
         }
         return file;
+    }
+
+    private void addHeader(File asciidoc) throws IOException {
+        String content = IOUtils.toString(new FileInputStream(asciidoc));
+        FileWriter fileWriter = new FileWriter(asciidoc, false);
+        fileWriter.append("= ").append(post.getTitle()).append("\n");
+        fileWriter.append(":published_at: ").append(post.getDate().format(DATE_TIME_FORMATTER)).append("\n\n");
+        fileWriter.append(content);
+        fileWriter.close();
     }
 
     private String getFullHtml() {
