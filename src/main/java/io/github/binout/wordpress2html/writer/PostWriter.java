@@ -21,27 +21,26 @@ import org.apache.commons.io.IOUtils;
 import java.io.*;
 import java.nio.file.Files;
 import java.time.format.DateTimeFormatter;
+import java.util.Optional;
 
 public class PostWriter {
 
     private static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd");
     private final File file;
     private final Post post;
-    private Html2AsciidocConverter html2AsciidocConverter;
+    private final Optional<Html2AsciidocConverter> asciidocConverter;
 
-    public PostWriter(File output, Post post, boolean asciidoc) throws IOException {
+    public PostWriter(File output, Post post, Optional<Html2AsciidocConverter> asciidocConverter) throws IOException {
         this.post = post;
+        this.asciidocConverter = asciidocConverter;
         this.file = new File(output, getFilename(this.post) + ".html");
-        if (asciidoc) {
-            html2AsciidocConverter = new Html2AsciidocConverter();
-        }
     }
 
     public File write() throws IOException {
         String htmlContent = getFullHtml();
         Files.copy(new ByteArrayInputStream(htmlContent.getBytes("UTF-8")), file.toPath());
-        if (html2AsciidocConverter != null) {
-            File asciidoc = html2AsciidocConverter.convert(file);
+        if (asciidocConverter.isPresent()) {
+            File asciidoc = asciidocConverter.get().convert(file);
             addHeader(asciidoc);
         }
         return file;

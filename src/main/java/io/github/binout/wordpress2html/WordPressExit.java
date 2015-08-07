@@ -17,6 +17,7 @@ package io.github.binout.wordpress2html;
 
 import com.beust.jcommander.JCommander;
 import io.github.binout.wordpress2html.extractor.PostExtractor;
+import io.github.binout.wordpress2html.writer.Html2AsciidocConverter;
 import io.github.binout.wordpress2html.writer.PostWriter;
 
 import java.io.File;
@@ -24,6 +25,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
+import java.util.Optional;
 import java.util.function.Consumer;
 
 public class WordPressExit {
@@ -38,9 +40,11 @@ public class WordPressExit {
 
         output.mkdirs();
         logger.accept("Begin writing html posts...");
+
+        Optional<Html2AsciidocConverter> asciidocConverter = asciidoc ? Optional.of(new Html2AsciidocConverter()) : Optional.empty();
         posts.stream().forEach(p -> {
             try {
-                File file = new PostWriter(output, p, asciidoc).write();
+                File file = new PostWriter(output, p, asciidocConverter).write();
                 logger.accept("Write " + file.getName());
             } catch (IOException e) {
                 throw new RuntimeException(e);
@@ -53,7 +57,7 @@ public class WordPressExit {
         Arguments arguments = new Arguments();
         new JCommander(arguments, args);
 
-        exit(new FileInputStream(arguments.file), arguments.output, Boolean.parseBoolean(arguments.asciidoc), System.out::println);
+        exit(new FileInputStream(arguments.file), arguments.output, arguments.asciidoc, System.out::println);
     }
 
 }

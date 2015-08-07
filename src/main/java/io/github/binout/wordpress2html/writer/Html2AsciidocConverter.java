@@ -25,6 +25,10 @@ import java.io.IOException;
 
 public class Html2AsciidocConverter {
 
+    public Html2AsciidocConverter() throws IOException {
+        execute(CommandLine.parse("pandoc --version"));
+    }
+
     public File convert(File html) throws IOException {
         String baseName = FilenameUtils.getBaseName(html.getName());
         File asciidoc = new File(html.getParentFile(), baseName + ".adoc");
